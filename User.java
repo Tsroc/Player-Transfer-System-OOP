@@ -27,7 +27,7 @@ public class User{
         return this.password;
     }
 
-    public boolean compareTo(User user2){
+    public boolean equals(User user2){
         if(this.username.equals(user2.username)){
             if(this.password.equals(user2.password)){
                 return true;

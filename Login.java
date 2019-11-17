@@ -7,14 +7,14 @@
 import java.util.Scanner;
 public class Login{
     //attempt to log in using this User.
-    public User user;
+    private User user;
 
-    public Login(String username, String password){
-        displayMenu(this.user);
-
+    public Login(){
+        displayMenu();
+        System.out.println(toString());
     }
 
-    private void displayMenu(User user){
+    private void displayMenu(){
         String username;
         String password;
 
@@ -38,6 +38,15 @@ public class Login{
         //userList from where?
 
         return validUser;
+    }
+
+    public String toString(){
+        String str = user.getUsername() + " " + user.getPassword();
+        return str;
+    }
+
+    public User getUser(){
+        return user;
     }
 
 }
