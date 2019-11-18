@@ -1,15 +1,3 @@
-/*
-public class Client{
-    
-
-    
-}
-
-
-*/
-
-
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -22,6 +10,7 @@ public class Client
 	private Socket connection;
 	private String message;
 	private  Scanner console;
+	private  Scanner sc;
 	private  String ipaddress;
 	private  int portaddress;
 	private ObjectOutputStream out;
@@ -29,13 +18,17 @@ public class Client
 
 	public Client()
 	{
-		console = new Scanner(System.in);
+		/*
+			different consoles created for different programs
+
+		*/
+		sc = new Scanner(System.in);
 		
 		System.out.println("Enter the IP Address of the server");
-		ipaddress = console.nextLine();
+		ipaddress = sc.nextLine();
 		
 		System.out.println("Enter the TCP Port");
-		portaddress  = console.nextInt();
+		portaddress  = sc.nextInt();
 		
 	}
 	
@@ -59,14 +52,23 @@ public class Client
 			//communication
 			/*
 				LOGIN
+					1) Login
+					2) Create a new user
+				
 			*/
-			console.nextLine();
-			userLogin();
-			System.out.println("Logged on.");
+			
+			loginMenu();
 			
 
 			/*
 				MORE CODE
+				note: loginMenu should return a user, which can be used for
+					further code
+				
+				from user variable, should get class type to determine if
+					club or agent.
+				This should be done server side, with a variable passed to client,
+					to indicate if the user is a club or agent.
 			*/
 			
 			out.close();
@@ -82,18 +84,19 @@ public class Client
 	
 	void sendMessage(String msg)
 	{
+		console = new Scanner(System.in);
 		try{
 			out.writeObject(msg);
 			out.flush();
-			//System.out.println("client>" + msg);
 		}
 		catch(IOException ioException){
 			ioException.printStackTrace();
 		}
-	}
+	}//sendMessage() - end
 
 	String recieveMessage()
 	{
+		console = new Scanner(System.in);
 		try{
 			return (String)in.readObject();
 			//System.out.println("client>" + msg);
@@ -105,17 +108,42 @@ public class Client
 			ioException.printStackTrace();
 		}
 		return "";
-	}
+	}//recieveMessage() - end
+
+	void loginMenu(){
+		int loginSelection;
+		String strMenu;
+		System.out.println(	recieveMessage() );
+
+		strMenu = recieveMessage();
+		System.out.println(strMenu);
+		//client must select 1 or 2
+		loginSelection = console.nextInt();
+
+		while (loginSelection < 1 || loginSelection > 2){
+			System.out.println("Invalid input.\n" + strMenu);
+			loginSelection = console.nextInt();
+		}
+		sendMessage( String.valueOf(loginSelection) );
+
+		switch(loginSelection){
+			case 1:
+				System.out.println("Selected 1.");
+				userLogin();
+				break;
+			case 2:
+				System.out.println("Selected 2.");
+				userRegister();
+				break;
+		}
+
+	}//loginMenu() - end
 
 	void userLogin(){
 		//welcome message
-		boolean validLogin = false;
+		boolean validUser = false;
 
 		do{
-			//console.nextLine();
-			message = recieveMessage();
-			System.out.println(message);
-
 			//Enter username
 			message = recieveMessage();
 			System.out.println(message);
@@ -130,10 +158,39 @@ public class Client
 			message = console.nextLine();
 			sendMessage(message);
 
-			//System.out.println(Boolean.valueOf(recieveMessage()));
-			validLogin = Boolean.valueOf(recieveMessage());
+			validUser = Boolean.valueOf(recieveMessage());
 
-		} while (!validLogin);
-	}
+			//should get msg logged on or not logged on
+			if(validUser){
+				System.out.println(	recieveMessage() );
+			}
+			else{
+				System.out.println(	recieveMessage() );
+			}
+
+		} while (!validUser);
+	}//userLogin() - end
+
+	void userRegister(){
+		/*
+			should accept a username and password and add to UserData's
+			list of users.
+			Afterwards user should be logged on.
+		*/
+
+		//Enter username
+		message = recieveMessage();
+		System.out.println(message);
+		//return username
+		message = console.nextLine();
+		sendMessage(message);
+
+		//Enter password 
+		message = recieveMessage();
+		System.out.println(message);
+		//return username
+		message = console.nextLine();
+		sendMessage(message);
+	}//userRegister() - end
 	
 }

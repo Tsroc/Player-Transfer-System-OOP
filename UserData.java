@@ -4,18 +4,23 @@
 
     Note: Is this being a singleton class going to cause problems with threads?
 */
+import java.util.LinkedList;
 
 public class UserData{
     private static UserData userData_instance = null;
 
     //set of users?
-    private static User[] users = {
-        new User("user1", "password1"),
-        new User("user2", "password2"),
-        new User("user3", "password3"),
-        new User("user4", "password4"),
-        new User("user5", "password5")
-    };
+    private static LinkedList<User> userList = new LinkedList<>();
+    private static void getUserData(){
+        userList.add(new Club("user1", "password1"));
+        userList.add(new Club("user2", "password2"));
+        userList.add(new Agent("user3", "password3"));
+        userList.add(new Club("user4", "password4"));
+        userList.add(new Agent("user5", "password5"));
+
+    }
+    /*
+        */
     
 
     private UserData(){
@@ -23,6 +28,7 @@ public class UserData{
         //How is userData gathered?
         //Nothing needs done here, UserData is a storage structure and will be accessed through methods,
         //Here it will simply be filled if it is taken from external file.
+        getUserData();
     }
 
     public static UserData getInstance(){
@@ -33,26 +39,37 @@ public class UserData{
     }
 
     public static User getUser(int i){
-        return users[i];
+        return userList.get(i);
     }
 
-    public static User[] getUsers(){
-        return users;
+    public static LinkedList<User> getUsers(){
+        return userList;
     }
+
+    public static void printUsers(){
+        for(int i = 0; i < userList.size(); i++){
+            System.out.println(userList.get(i).toString());
+        }
+    }
+
 
     public static int length(){
-        return users.length;
+        return userList.size();
     }
 
     public static boolean verifyLogin(User user){
         for(int i = 0; i < UserData.length(); i++){
             if(user.equals(UserData.getUser(i))){
-                System.out.println("\nValid user login.\n");
+                System.out.println("Valid user login.");
                 return true;
             }
         }
-        System.out.println("\nInvalid user login.\n");
+        System.out.println("Invalid user login.");
         return false;
+    }
+
+    public static void add(User user){
+        userList.add(user);
     }
 
 }

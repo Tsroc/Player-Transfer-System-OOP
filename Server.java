@@ -6,8 +6,6 @@ import java.net.*;
 public class Server {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		
 		ServerSocket listener;
 		int clientid=0;
 		try 
@@ -66,15 +64,29 @@ class Connecthandler extends Thread
 			//Commence the conversation with the client......
 			/*
 				LOGIN:
-					will loop until true
+					1) Login
+					2) Create a new user
 			*/
-			userLogin();				
-	    		
+
+			
+			User user = new User();	//empty user
+
+			loginMenu(user);
+			System.out.println(user.toString());
+			//System.out.println(user.toString()); //null pointer
+			//must get user variable here in order to read the userType.
+
+
+			/*
+				MORE CODE
+				note: loginMenu should return a user, which can be used for
+					further code
+			*/
+
 			
 		} 
 		catch (IOException e) 
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		finally
@@ -87,7 +99,6 @@ class Connecthandler extends Thread
 			}
 			catch (IOException e) 
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -123,47 +134,96 @@ class Connecthandler extends Thread
 		return "";
 	}
 
-	  void userLogin(){
-			//list of user
-			UserData.getInstance();
-			String username, password;
-			User user;
-			boolean validUser = false;
-			//int errorMsg = 0;
+	void loginMenu(User user){
 
-			do{
-				user = null;
+		String message = "Welcome.";
+		sendMessage(message);
+		message = "\t1)Login\n\t2)New account";
+		sendMessage(message);
 
-				String message = "Welcome message.";
-				sendMessage(message);
+		switch(	Integer.parseInt( recieveMessage()) ){
+			case 1:
+				userLogin(user);
+				break;
+			case 2:
+				userRegister(user);
+				break;
+		}
+	}//loginMenu() - end
 
-				
-				message = "Please enter username.";
-				sendMessage(message);
-				username = recieveMessage();
+	void userLogin(User user){
+		//list of user
+		UserData.getInstance();
+		String username, password;
 
-				message = "Please enter password.";
-				sendMessage(message);
-				password = recieveMessage();
+		//User user;
+		boolean validUser = false;
+		//int errorMsg = 0;
 
-				//Instantiate a User object with username and password
-				user = new User(username, password);
-				validUser = UserData.verifyLogin(user);
-				System.out.println(validUser);
+		do{
+			//user = null;
 
-				//need to return to client
-				message = Boolean.toString(validUser);
-				sendMessage(message);
+			message = "\tPlease enter username.";
+			sendMessage(message);
+			username = recieveMessage();
 
-			 } while(!validUser);
+			message = "\tPlease enter password.";
+			sendMessage(message);
+			password = recieveMessage();
 
+			//Instantiate a User object with username and password
+			//user = new User(username, password);
+			user.setUsername(username);
+			user.setPassword(password);
+			validUser = UserData.verifyLogin(user);
 
+			//need to return to client
+			message = Boolean.toString(validUser);
+			sendMessage(message);
 
-			//Server side validation
-			//System.out.println("user: " + username +" pword: " + password);
+			//should send msg logged in or not logged in
+			if(validUser){
+				sendMessage("Login successful.");
+			}
+			else{
+				sendMessage("Login unsuccessful.");
+			}
+			
 
-	  }
+		} while(!validUser);
+	}//userLogin() - end
 	
+	void userRegister(User user){
+		/*
+			should accept a username and password and add to UserData's
+			list of users.
+			Afterwards user should be logged on.
+		*/
+
+		UserData.getInstance();
+		String message, username, password;
+		//User user;
+
+		message = "\tPlease enter username.";
+		sendMessage(message);
+		username = recieveMessage();
+
+		message = "\tPlease enter password.";
+		sendMessage(message);
+		password = recieveMessage();
+		
+		//user = new User(username, password);
+		user.setUsername(username);
+		user.setPassword(password);
+		//System.out.println(	user.toString() );
+
+		UserData.add(user);
+		UserData.printUsers();
+
+
+
+	}//userRegister() - end
+
 }
 
 

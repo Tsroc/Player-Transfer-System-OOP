@@ -8,6 +8,11 @@ public class User{
     private String username;
     private String password;
 
+    public User(){
+        setUsername("");
+        setPassword("");
+    }
+
     public User(String username, String password){
         setUsername(username);
         setPassword(password);
@@ -35,6 +40,14 @@ public class User{
         }
         return false;
         
+    }
+    public String toString(){
+        return "Username: " + username + " Password: " + password;
+    }
+
+    public void copy(User user2){
+        this.username = user2.getUsername();
+        this.password = user2.getPassword();
     }
 
 }
