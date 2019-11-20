@@ -66,21 +66,21 @@ class Connecthandler extends Thread
 				LOGIN:
 					1) Login
 					2) Create a new user
+					
+					login should work with threads.
+					Thread should be locked when user is registering.
 			*/
 
 			
-			User user = new User();	//empty user
-
-			loginMenu(user);
-			System.out.println(user.toString());
-			//System.out.println(user.toString()); //null pointer
-			//must get user variable here in order to read the userType.
-
+			User user;	//empty user
+			user = loginMenu();
+			//System.out.println(user.toString());
+			//System.out.println(user.getClass().getName());
 
 			/*
 				MORE CODE
 				note: loginMenu should return a user, which can be used for
-					further code
+					further code will depend on .getClass().getName() of user.
 			*/
 
 			
@@ -111,7 +111,6 @@ class Connecthandler extends Thread
 			try{
 				out.writeObject(msg);
 				out.flush();
-				//System.out.println("client> " + msg);
 			}
 			catch(IOException ioException){
 				ioException.printStackTrace();
@@ -123,7 +122,6 @@ class Connecthandler extends Thread
 	{
 		try{
 			return (String)in.readObject();
-			//System.out.println("client>" + msg);
 		}
 		catch(ClassNotFoundException classNot){
 			System.err.println("data received in unknown format");
@@ -134,8 +132,9 @@ class Connecthandler extends Thread
 		return "";
 	}
 
-	void loginMenu(User user){
+	User loginMenu(){
 
+		User user = null;
 		String message = "Welcome.";
 		sendMessage(message);
 		message = "\t1)Login\n\t2)New account";
@@ -143,21 +142,25 @@ class Connecthandler extends Thread
 
 		switch(	Integer.parseInt( recieveMessage()) ){
 			case 1:
-				userLogin(user);
+				user = userLogin();
 				break;
 			case 2:
-				userRegister(user);
+				user = userRegister();
 				break;
 		}
+
+		return user;
 	}//loginMenu() - end
 
-	void userLogin(User user){
+	User userLogin(){
 		//list of user
 		UserData.getInstance();
 		String username, password;
+		User user;
 
 		//User user;
 		boolean validUser = false;
+		int userIndex;
 		//int errorMsg = 0;
 
 		do{
@@ -172,10 +175,11 @@ class Connecthandler extends Thread
 			password = recieveMessage();
 
 			//Instantiate a User object with username and password
-			//user = new User(username, password);
-			user.setUsername(username);
-			user.setPassword(password);
-			validUser = UserData.verifyLogin(user);
+			user = new User(username, password);
+			//user.setUsername(username);
+			//user.setPassword(password);
+			userIndex = UserData.verifyLogin(user);
+			validUser = userIndex >= 0? true: false;
 
 			//need to return to client
 			message = Boolean.toString(validUser);
@@ -188,40 +192,68 @@ class Connecthandler extends Thread
 			else{
 				sendMessage("Login unsuccessful.");
 			}
-			
 
 		} while(!validUser);
+
+
+		//creates new object of type club or agent to be returned.
+		if(UserData.getUser(userIndex).getClass().getName().equals("Club")){
+			user = new Club(user.getUsername(), user.getPassword());
+			user.copy(UserData.getUser(userIndex));
+		}
+		else{
+			user = new Agent(user.getUsername(), user.getPassword());
+			user.copy(UserData.getUser(userIndex));
+		}
+
+		return user;
 	}//userLogin() - end
 	
-	void userRegister(User user){
+	User userRegister(){
 		/*
 			should accept a username and password and add to UserData's
 			list of users.
 			Afterwards user should be logged on.
+			Note, this must loop to ensure same user not added twice.
 		*/
 
 		UserData.getInstance();
 		String message, username, password;
-		//User user;
+		User user;
 
+
+		//username is userd tp validate user, if matches it should not be accepted.
 		message = "\tPlease enter username.";
-		sendMessage(message);
-		username = recieveMessage();
+		boolean validUsername;
+		do{
+			sendMessage(message);
+			username = recieveMessage();
+			validUsername = UserData.contains(username);
+			System.out.println(validUsername);
+			sendMessage(Boolean.toString(validUsername));
+		}while (validUsername);
 
 		message = "\tPlease enter password.";
 		sendMessage(message);
 		password = recieveMessage();
 		
-		//user = new User(username, password);
-		user.setUsername(username);
-		user.setPassword(password);
-		//System.out.println(	user.toString() );
+		String classType;
+		//do{
+		message = "\tPlease enter user type, 1) Club, 2) Agent.";
+		sendMessage(message);
+		classType = recieveMessage();
+
+		System.out.println("CLASSTYPE: " + classType);
+		if(classType.equals("1")){
+		//if(true){
+			user = new Club(username, password);
+		}else{
+			user = new Agent(username, password);
+		}
 
 		UserData.add(user);
-		UserData.printUsers();
 
-
-
+		return user;
 	}//userRegister() - end
 
 }

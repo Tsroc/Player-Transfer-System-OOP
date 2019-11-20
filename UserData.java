@@ -57,16 +57,26 @@ public class UserData{
         return userList.size();
     }
 
-    public static boolean verifyLogin(User user){
+    public static int verifyLogin(User user){
         for(int i = 0; i < UserData.length(); i++){
             if(user.equals(UserData.getUser(i))){
                 System.out.println("Valid user login.");
-                return true;
+                return i;
             }
         }
         System.out.println("Invalid user login.");
+        return -1;
+    }
+
+    public static boolean contains(String username){
+        for(int i = 0; i < UserData.length(); i++){
+            if(username.equals( UserData.getUser(i).getUsername() )){
+                return true;
+            }
+        }
         return false;
     }
+    
 
     public static void add(User user){
         userList.add(user);

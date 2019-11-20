@@ -54,7 +54,6 @@ public class Client
 				LOGIN
 					1) Login
 					2) Create a new user
-				
 			*/
 			
 			loginMenu();
@@ -179,18 +178,35 @@ public class Client
 		*/
 
 		//Enter username
-		message = recieveMessage();
-		System.out.println(message);
-		//return username
-		message = console.nextLine();
-		sendMessage(message);
+		boolean validUsername;
+		do{
+			message = recieveMessage();
+			System.out.println(message);
+			//return username
+			message = console.nextLine();
+			sendMessage(message);
+			validUsername = Boolean.valueOf(recieveMessage());
+		}while (validUsername);
 
 		//Enter password 
 		message = recieveMessage();
 		System.out.println(message);
-		//return username
+		//return username 
 		message = console.nextLine();
 		sendMessage(message);
+
+		//enter class type
+		message = recieveMessage();
+		String classType;
+		do{
+			System.out.println(message);
+			classType = console.nextLine();
+
+		} while (Integer.parseInt(classType) < 1 || Integer.parseInt(classType) > 2);
+		//return classType
+		sendMessage(classType);
+
+		
 	}//userRegister() - end
 	
 }
